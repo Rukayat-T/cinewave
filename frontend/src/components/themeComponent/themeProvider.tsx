@@ -41,8 +41,12 @@ const ThemeContext = createContext<Theme>(darkMode);
 
 export const ThemeProvider = ({ children }: {children: React.ReactNode}) => {
     
-const isSystemDark = window?.matchMedia("(prefers-color-scheme:dark)").matches
-const [isDark, setIsDark] = useState(isSystemDark)
+
+// const [window, setWindow] = useState({})
+// console.log(window, "window")
+// const isSystemDark = window.matchMedia("(prefers-color-scheme:dark)").matches
+const [isDark, setIsDark] = useState(false)
+
 
 const checkSetting = () => {
     window?.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',({ matches }) => {
@@ -53,8 +57,13 @@ const checkSetting = () => {
     } 
     })
 }
+const initialSetting = () => {
+    const isSystemDark = window.matchMedia("(prefers-color-scheme:dark)").matches
+    setIsDark(isSystemDark)
+}
 
     useEffect(()=>{
+        initialSetting()
         checkSetting()
     },[])
 
