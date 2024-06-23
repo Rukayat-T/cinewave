@@ -1,4 +1,3 @@
-import SideNav from "@/components/sidenav/sideNav"
 import './globals.css'
 import { ThemeProvider, useTheme } from "@/components/themeComponent/themeProvider"
 
@@ -18,7 +17,7 @@ export default function RootLayout({
     
     <body className="flex">
       <ThemeProvider>
-    <SideNav/>
+    
       {children}
       </ThemeProvider>
       </body>
