@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-function page() {
+function Page() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -76,4 +76,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

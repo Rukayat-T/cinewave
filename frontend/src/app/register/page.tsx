@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
-function page() {
+function Page() {
   const [formData, setFormData] = useState({
     email: "",
     password1: "",
@@ -101,4 +101,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
