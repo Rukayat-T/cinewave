@@ -4,12 +4,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/UserEntity.entity';
+import { UserController } from './controllers/AuthController.controller';
+import { AuthService } from './services/AuthService.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'mysql',
       host: process.env.POSTGRES_HOST,
       port: parseInt(<string>process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
@@ -19,8 +22,12 @@ import { UserEntity } from './entities/UserEntity.entity';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1d' },
+    }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, UserController],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}
