@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/dto/CreateUserDto.dto';
 import { UserEntity } from 'src/entities/UserEntity.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { BaseResponse } from 'src/responses/BaseResponse.response';
 
 @Injectable()
 export class AuthService {
@@ -24,8 +25,27 @@ export class AuthService {
   fetchUsers() {
     return this.userRepository.find();
   }
-  fetchUserbyId(id: number) {
-    return this.userRepository.findOneBy({ id });
+  async fetchUserbyId(id: number): Promise<BaseResponse> {
+    try {
+      const user = await this.userRepository.findOneBy({ id });
+
+      if (!user) {
+        return {
+          status: 404,
+          message: 'user not found',
+        };
+      }
+      return {
+        status: 200,
+        message: 'user found',
+        response: user,
+      };
+    } catch (error) {
+      return {
+        status: 400,
+        message: 'bad request',
+      };
+    }
   }
   deleteUser(id: number) {
     return this.userRepository.delete({ id });
@@ -36,14 +56,13 @@ export class AuthService {
       throw new HttpException('Invalid Credentials', HttpStatus.BAD_REQUEST);
       return;
     }
-    if (!(await bcrypt.compare(password, user.password))) {
+    if (!(await argon2.verify(user.password, password))) {
       throw new HttpException('Invalid Credentials', HttpStatus.BAD_REQUEST);
       return;
     }
 
     const response = {
-      user,
-      jwt: await this.jwtService.signAsync({ id: user.id }),
+      jwt: await this.jwtService.signAsync({ user }),
     };
 
     return response;

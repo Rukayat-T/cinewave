@@ -9,10 +9,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/AuthService.service';
 import { CreateUserDto } from '../dto/CreateUserDto.dto';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { BaseResponse } from 'src/responses/BaseResponse.response';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('Authentication')
 export class UserController {
   constructor(
     private authService: AuthService,
@@ -23,7 +26,7 @@ export class UserController {
   async createUser(@Body() createUserDto: CreateUserDto) {
     const dtoWithhashedPassword = {
       ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 12),
+      password: await argon2.hash(createUserDto.password),
     };
     return this.authService.createUser(dtoWithhashedPassword);
   }
@@ -32,15 +35,14 @@ export class UserController {
     return this.authService.login(createUserDto);
   }
 
-  @Get()
+  @Get('get-all-users')
   async fetchUsers() {
     const users = await this.authService.fetchUsers();
     return users;
   }
-  @Get(':id')
-  async fetchUserbyId(@Param('id', ParseIntPipe) id: number) {
-    const users = await this.authService.fetchUserbyId(id);
-    return users;
+  @Get('get-user/:id')
+  async fetchUserbyId(@Param('id') id: number): Promise<BaseResponse> {
+    return await this.authService.fetchUserbyId(id);
   }
   @Delete(':id')
   async deleteUserById(@Param('id', ParseIntPipe) id: number) {
