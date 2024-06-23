@@ -1,12 +1,41 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { CreateUserDto } from "@/models/onboarding.model";
+import AuthorizationServices from "@/services/AuthServices/auth.service";
+import { toast } from "react-toastify";
+import CookieManager from "@/utils/cookie_manager";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const router = useRouter();
+  const notify = (message: string) => toast(message);
+
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+
+    try {
+      const data: CreateUserDto = {
+        email: formData.email,
+        password: formData.password,
+      };
+      const log = await AuthorizationServices.LoginUser(data);
+      if (log.status === 200) {
+        notify(log.message);
+        CookieManager.setCookie("token", log.jwt);
+        router.push("/");
+      } else {
+        notify(log.message);
+      }
+    } catch (error) {
+      notify("you don't deserve to watch feem!");
+    }
+  };
+
   return (
     <div className='bg-slate-600 w-full h-[100vh] bg-moviesImage'>
       <Link href={"/"} className='text-[2vw] text-white pl-5'>
@@ -22,7 +51,7 @@ function Page() {
               </p>
             </div>
 
-            <form action='' className=' flex flex-col gap-y-5'>
+            <form action='' onSubmit={onSubmit} className=' flex flex-col gap-y-5'>
               <div className='flex flex-col'>
                 <label className='text-[1.5rem]' htmlFor='email'>
                   Email:
@@ -67,7 +96,7 @@ function Page() {
                 </Link>
                 ?
               </div>
-              <input type='button' value={"Log In"} className='h-fit bg-black py-1 text-white text-[1.2rem] rounded-md' />
+              <input type='submit' value={"Log In"} className='h-fit bg-black py-1 text-white text-[1.2rem] rounded-md' />
             </form>
           </div>
         </div>

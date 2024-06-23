@@ -31,7 +31,7 @@ export class UserController {
     return this.authService.createUser(dtoWithhashedPassword);
   }
   @Post('login')
-  async login(@Body() createUserDto: CreateUserDto) {
+  async login(@Body() createUserDto: CreateUserDto): Promise<BaseResponse> {
     return this.authService.login(createUserDto);
   }
 

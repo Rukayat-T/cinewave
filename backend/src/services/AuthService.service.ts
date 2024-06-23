@@ -50,21 +50,29 @@ export class AuthService {
   deleteUser(id: number) {
     return this.userRepository.delete({ id });
   }
-  async login({ email, password }: CreateUserDto) {
+  async login({ email, password }: CreateUserDto): Promise<BaseResponse> {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {
-      throw new HttpException('Invalid Credentials', HttpStatus.BAD_REQUEST);
-      return;
+      return {
+        status: 404,
+        message: 'Email not found',
+      };
     }
     if (!(await argon2.verify(user.password, password))) {
-      throw new HttpException('Invalid Credentials', HttpStatus.BAD_REQUEST);
-      return;
+      return {
+        status: 400,
+        message: 'Incorrect password',
+      };
     }
 
     const response = {
       jwt: await this.jwtService.signAsync({ user }),
     };
 
-    return response;
+    return {
+      status: 200,
+      message: 'Log In Successful',
+      response: response,
+    };
   }
 }
